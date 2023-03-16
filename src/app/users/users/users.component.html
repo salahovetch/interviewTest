@@ -1,0 +1,275 @@
+
+<div  class="container contentWrapper">
+    <div class="text-right mb-3 ">
+        <button class="btn btn-primary" type="button" (click)="showAddForm()">
+            add User
+        </button>
+    </div>
+
+    <!-- preview usres -->
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> name. </th>
+          <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef> email </th>
+          <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="gender">
+          <th mat-header-cell *matHeaderCellDef> gender </th>
+          <td mat-cell *matCellDef="let element"> {{element.gender}} </td>
+        </ng-container>
+      
+    
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> status </th>
+          <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+        </ng-container>
+        <ng-container matColumnDef="viewPosts">
+            <th mat-header-cell *matHeaderCellDef> View Posts</th>
+            <td mat-cell *matCellDef="let element"> <button class="btn btn-success btn-sm" type="button" (click)="openUserPosts(element)">View Posts</button> </td>
+          </ng-container>
+        <ng-container matColumnDef="edit">
+            <th mat-header-cell *matHeaderCellDef> edit</th>
+            <td mat-cell *matCellDef="let element"> <button class="btn btn-warning btn-sm" type="button" (click)="openUpdateDialog(element)">edit</button> </td>
+          </ng-container>
+          <ng-container matColumnDef="delete">
+            <th mat-header-cell *matHeaderCellDef> delete </th>
+            <td mat-cell *matCellDef="let element"> <button class="btn btn-danger btn-sm" type="button" (click)="delete(element)">delete</button> </td>
+          </ng-container>
+          
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      
+</div>
+
+<!-- update dialog -->
+<div *ngIf="updateMode" class="modal d-block" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">update User</h5>
+                <button type="button" (click)="closeUpdateDilog()" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form *ngIf="!updateShootMode" class="" [formGroup]="updateUserForm" (ngSubmit)="updateUser()">
+
+                    <div class="form-group mb-3">
+                        <input type="text" class="form-control" formControlName="name" placeholder="name">
+
+                        <span class="text-danger mt-1 d-block"
+                            *ngIf="!updateUserForm.get('name').valid && updateUserForm.get('name').touched">
+                            enter name
+                        </span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <input type="email" class="form-control" formControlName="email" placeholder="email">
+
+                        <span class="text-danger mt-1 d-block"
+                            *ngIf="!updateUserForm.get('email').valid && updateUserForm.get('email').touched">
+                            enter email
+                        </span>
+                    </div>
+                    <div class="form-group mb-3">
+
+                        <select class="form-select" 
+                        formControlName="gender">
+                        <option value="male" >
+                            male
+                        </option>
+                        <option value="female" >
+                            female
+                        </option>
+                      </select>
+                        
+
+                    
+
+
+                    </div>
+                    <div class="form-group mb-3">
+
+                        <select class="form-select" 
+                        formControlName="status">
+                        <option value="active" >
+                            active
+                        </option>
+                        <option value="inactive" >
+                            inactive
+                        </option>
+                      </select>
+                        
+
+                
+
+
+                    </div>
+
+
+                    <div class="clearfix text-center">
+                        <button [disabled]="!updateUserForm.valid" class="btn btn-success login-btn-last float-right"
+                            type="submit">save</button>
+                    </div>
+
+
+                </form>
+                <p class="text-center" *ngIf="updateSuccess">user updated successfully</p>
+
+                <table *ngIf="updateShootMode" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">name</th>
+                            <th scope="col">email</th>
+                            <th scope="col">gender</th>
+                            <th scope="col">status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{updatedShoot?.name}}</td>
+                            <td>{{updatedShoot?.email}}</td>
+                            <td>{{updatedShoot?.gender}}</td>
+                            <td> {{updatedShoot?.status}}</td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" (click)="closeUpdateDilog()" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- add dialog -->
+<div *ngIf="addMode" class="modal d-block" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add user</h5>
+                <button type="button" (click)="closeAddForm()" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form *ngIf="!addedShootMode" class="" [formGroup]="addUserForm" (ngSubmit)="addUser()">
+
+                    <div class="form-group mb-3">
+                        <input type="text" class="form-control" formControlName="name" placeholder="name">
+
+                        <span class="text-danger mt-1 d-block"
+                            *ngIf="!addUserForm.get('name').valid && addUserForm.get('name').touched">
+                            enter name
+                        </span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <input type="email" class="form-control" formControlName="email" placeholder="email">
+
+                        <span class="text-danger mt-1 d-block"
+                            *ngIf="!addUserForm.get('email').valid && addUserForm.get('email').touched">
+                            enter email
+                        </span>
+                    </div>
+                    <div class="form-group mb-3">
+
+                        <select class="form-select" 
+                        formControlName="gender">
+                        <option value="male" >
+                            male
+                        </option>
+                        <option value="female" >
+                            female
+                        </option>
+                      </select>
+                        
+
+                    
+
+
+                    </div>
+                    <div class="form-group mb-3">
+
+                        <select class="form-select" 
+                        formControlName="status">
+                        <option value="active" >
+                            active
+                        </option>
+                        <option value="inactive" >
+                            inactive
+                        </option>
+                      </select>
+                        
+
+                
+
+
+                    </div>
+                   
+
+                    <div class="clearfix text-center">
+                        <button [disabled]="!addUserForm.valid" class="btn btn-success login-btn-last float-right"
+                            type="submit">add</button>
+                    </div>
+
+
+                </form>
+                <p class="text-center" *ngIf="addSuccess">user added successfully</p>
+                <table *ngIf="addedShootMode" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">name</th>
+                            <th scope="col">email</th>
+                            <th scope="col">gender</th>
+                            <th scope="col">status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{addedShoot?.name}}</td>
+                            <td>{{addedShoot?.email}}</td>
+                            <td>{{addedShoot?.gender}}</td>
+                            <td> {{addedShoot?.status}}</td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" (click)="closeAddForm()" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- delete message -->
+<div *ngIf="showDeleteSuccess" class="modal d-block" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete user</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>User Deleted.</p>
+            </div>
+     
+        </div>
+    </div>
+</div>
+
+<app-loader></app-loader>
